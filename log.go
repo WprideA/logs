@@ -17,10 +17,10 @@ import (
 
 //设置 log  等级
 const (
-	LDebug = iota
-	LInfo
-	LWarning
-	LError
+	lDebug = iota
+	lInfo
+	lWarning
+	lError
 )
 var isToConsole  bool  //是否输出到控制台
 
@@ -65,11 +65,11 @@ func init (){
 	time.Now()
 	//获取当前时间
 	nowTime := time.Now()
-	AssignLog(nowTime)
+	assignLog(nowTime)
 	Debug("Logs init over ! ")
 }
 
-func AssignLog(t time.Time){
+func assignLog(t time.Time){
 	logRWMutex.Lock()
 	defer  logRWMutex.Unlock()
 	logPath := filePath+"\\"+operationtime.ParseTimeToString3(t)+".log"
@@ -79,7 +79,7 @@ func AssignLog(t time.Time){
 		fmt.Println("err:",err)
 	}
 	logFile.file = file
-	logFile.level = LDebug   //默认为Debug，即全部输出
+	logFile.level = lDebug //默认为Debug，即全部输出
 	logs = log.New(logFile.file,"",log.Ltime|log.Ldate)
 	isToConsole =true    //默认开始输出到控制台
 	// 定义多个写入器
@@ -89,28 +89,24 @@ func AssignLog(t time.Time){
 	fileAndStdoutWriter := io.MultiWriter(writers...)
 	logsc = log.New(fileAndStdoutWriter,"",log.Ltime|log.Ldate)
 
-	go UpdateLogName()
+	go updateLogName()
 }
 
 //按照时间更新 log 名称
-func UpdateLogName (){
+func updateLogName(){
 	t := time.NewTicker(2*time.Second)
 	pd := false
 	for {
 		select {
 		case <-t.C:
 			if operationtime.JudgeTime(0) && pd ==true {
-			    fmt.Println("要更新啦~")
-				AssignLog(time.Now())
+				assignLog(time.Now())
 			    pd = false
 			}else {
 				if !operationtime.JudgeTime(23){
 					if !pd {
-						fmt.Println("赋值哦")
 						pd =true
 					}
-				}else {
-					fmt.Println("不用更新哦")
 				}
 			}
 		case <-ctx.Done():
@@ -157,74 +153,52 @@ func getLog() *log.Logger{
 
 //以下方法为只将 log信息 输出到文件中
 func Debug(v ...interface{}){
-	if logFile.level <= LDebug {
+	if logFile.level <= lDebug {
 		debug :=color.New(color.FgHiBlue).Sprint("[DEBUG]--",v)
 		getLog().Printf(debug)
 	}
 }
 func Info(v ...interface{}){
-	if logFile.level <= LInfo {
+	if logFile.level <= lInfo {
 		info :=color.New(color.FgHiGreen).Sprint("[INFO]--", v)
 		getLog().Printf(info)
 	}
 }
 func Warning(format string ,v ...interface{}){
-	if logFile.level <= LWarning {
+	if logFile.level <= lWarning {
 		warning :=color.New(color.FgHiMagenta).Sprint("[WARNING]--", v)
 		getLog().Printf(warning)
 	}
 }
 func Error(format string ,v ...interface{}){
-	if logFile.level <= LError {
+	if logFile.level <= lError {
 		error :=color.New(color.FgRed).Sprint("[ERROR]--", v)
 		getLog().Printf(error)
 	}
 }
 
 func Debugf (format string ,v ...interface{}){
-	if logFile.level <= LDebug {
+	if logFile.level <= lDebug {
 		debug :=color.New(color.FgHiBlue).Sprintf("[DEBUG]--"+format, v...)
 		getLog().Printf(debug)
 	}
 }
 func Infof (format string ,v ...interface{}){
-	if logFile.level <= LInfo {
+	if logFile.level <= lInfo {
 		info :=color.New(color.FgHiGreen).Sprintf("[INFO]--"+format, v...)
 		getLog().Printf(info)
 	}
 }
 func Warningf (format string ,v ...interface{}){
-	if logFile.level <= LWarning {
+	if logFile.level <= lWarning {
 		warning :=color.New(color.FgHiMagenta).Sprintf("[WARNING]--"+format, v...)
 		getLog().Printf(warning)
 	}
 }
 func Errorf (format string ,v ...interface{}){
-	if logFile.level <= LError {
+	if logFile.level <= lError {
 		error :=color.New(color.FgRed).Sprintf("[ERROR]--"+format, v...)
 		getLog().Printf(error)
 	}
 }
 
-func main (){
-	wg := sync.WaitGroup{}
-	for i := 0; i<10000;i++{
-		wg.Add(1)
-		func (){
-
-			defer wg.Done()
-			SetIsToConsole(true)
-			Debugf("TestDebugf :::: %v" , 1 )
-			Infof("TestInfof  ;:::%v ", 1)
-			Warningf("TestWarningf  :::::%v",1)
-			Errorf("TestErrorf ::::::%v", 1)
-			fmt.Println("-----------------------------------------------------")
-			Debug("TestDebug",1,"XXXX",2)
-			Info("TestInfo",1,"XXXX",2)
-			Warning("TestWarning",1,"XXXX",2)
-			Error("TestError",1,"XXXX",2)
-		}()
-	}
-	wg.Wait()
-	Close()
-}
