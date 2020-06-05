@@ -1,4 +1,4 @@
-package main
+package logs
 
 import (
 	"context"
@@ -121,13 +121,12 @@ func UpdateLogName (){
 	}
 }
 
-
+//关闭 logs
 func Close(){
 	if cf !=nil{
 		cf()
 	}
 }
-
 
 
 

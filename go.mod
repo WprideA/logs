@@ -1,4 +1,4 @@
-module git
+module github.com/WprideA/logs
 
 go 1.13
 
