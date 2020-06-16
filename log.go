@@ -164,13 +164,13 @@ func Info(v ...interface{}){
 		getLog().Printf(info)
 	}
 }
-func Warning(format string ,v ...interface{}){
+func Warning(v ...interface{}){
 	if logFile.level <= LWarning {
 		warning :=color.New(color.FgHiMagenta).Sprint("[WARNING]--", v)
 		getLog().Printf(warning)
 	}
 }
-func Error(format string ,v ...interface{}){
+func Error(v ...interface{}){
 	if logFile.level <= LError {
 		error :=color.New(color.FgRed).Sprint("[ERROR]--", v)
 		getLog().Printf(error)
