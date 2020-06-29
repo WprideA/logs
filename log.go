@@ -66,6 +66,7 @@ func init (){
 	//获取当前时间
 	nowTime := time.Now()
 	assignLog(nowTime)
+	go updateLogName()   //判断是否需要更新
 	Debug("Logs init over ! ")
 }
 
@@ -88,8 +89,6 @@ func assignLog(t time.Time){
 		os.Stdout}
 	fileAndStdoutWriter := io.MultiWriter(writers...)
 	logsc = log.New(fileAndStdoutWriter,"",log.Ltime|log.Ldate)
-
-	go updateLogName()
 }
 
 //按照时间更新 log 名称
@@ -103,7 +102,7 @@ func updateLogName(){
 				assignLog(time.Now())
 			    pd = false
 			}else {
-				if !operationtime.JudgeTime(23){
+				if !operationtime.JudgeTime(0){
 					if !pd {
 						pd =true
 					}
